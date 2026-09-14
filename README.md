@@ -4,7 +4,7 @@ Agent coding skills for working with [Kvaser CanKing](https://kvaser.com/canking
 
 ## Skills
 
-- [`create-canking-gui-extension`](skills/create-canking-gui-extension/SKILL.md) — Scaffold a new CanKing WorkspaceView extension from a natural-language feature request, drive the `npm create @kvaser/canking-extension` generator, and implement the first working version of `src/WorkspaceView/index.tsx` using the `@kvaser/canking-api` SDK.
+- [`create-canking-gui-extension`](skills/create-canking-gui-extension/SKILL.md) — Scaffold a new CanKing WorkspaceView extension from a natural-language feature request, run the `npm create @kvaser/canking-extension` script with the values taken from your request, and implement the first working version of `src/WorkspaceView/index.tsx` using the `@kvaser/canking-api` SDK.
 
 ## Installation
 
