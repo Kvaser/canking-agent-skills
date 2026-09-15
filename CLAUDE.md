@@ -21,14 +21,21 @@ skills/
 carries its own copy so either can be installed on its own — the manual install in the README copies one
 skill folder at a time, and a `../shared/` path would break for anyone who installs just one skill.
 
-**After editing either copy, copy it over the other and verify:**
+**After editing either copy, propagate it and verify with `tools/sync-references.sh`:**
 
 ```bash
-diff skills/create-canking-gui-extension/references/implementation-conventions.md \
-     skills/develop-canking-gui-extension/references/implementation-conventions.md
+bash tools/sync-references.sh                  # check; exits 1 and prints the diff on drift
+bash tools/sync-references.sh --from create    # copy create/ -> develop/
+bash tools/sync-references.sh --from develop   # copy develop/ -> create/
 ```
 
-No output means they match. Never commit with the two out of sync.
+There is no default source — the direction must be stated, because copying the wrong way silently
+discards an edit. Never commit with the copies out of sync; the `checks` workflow
+(`.github/workflows/checks.yml`) runs the same script on every push and pull request and fails if they
+have drifted.
+
+To add another shared file, drop a copy in both skill folders and add its skill-relative path to
+`SHARED_FILES` in the script.
 
 ## The create / develop boundary
 

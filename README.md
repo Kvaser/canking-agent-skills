@@ -74,3 +74,15 @@ These skills are invoked from your agent tool as slash commands, e.g.:
 ```
 
 See each skill's `SKILL.md` for details on supported inputs and behavior.
+
+## Contributing
+
+Both skill folders carry their own copy of `references/implementation-conventions.md` so either skill can
+be installed on its own. After editing one copy, propagate it:
+
+```bash
+bash tools/sync-references.sh --from create    # or --from develop
+```
+
+Run `bash tools/sync-references.sh` with no arguments to check. CI runs the same check on every pull
+request. See [CLAUDE.md](CLAUDE.md) for the rest of the repo conventions.
