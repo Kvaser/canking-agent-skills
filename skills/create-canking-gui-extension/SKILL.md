@@ -1,6 +1,6 @@
 ---
 name: create-canking-gui-extension
-description: 'Create a Kvaser CanKing GUI extension from a prompt. Use when scaffolding a new CanKing WorkspaceView extension, running npm create @kvaser/canking-extension with command line options, reading @kvaser/canking-api SDK docs, implementing src/WorkspaceView/index.tsx, and validating with npm install and npm run build.'
+description: 'Create a new Kvaser CanKing GUI extension from a prompt. Use when scaffolding a CanKing WorkspaceView extension that does not exist yet, running npm create @kvaser/canking-extension with command line options, and implementing the first working src/WorkspaceView/index.tsx. For changes to an extension that already exists, use develop-canking-gui-extension instead.'
 argument-hint: 'Describe the extension behavior and include any scaffold values in free text, bullets, or YAML if you want to prefill the create script'
 ---
 
@@ -18,6 +18,12 @@ This skill packages the workflow from scaffold to first working implementation. 
 - Read the local SDK docs in `node_modules/@kvaser/canking-api/doc_md`
 - Implement or replace `src/WorkspaceView/index.tsx`
 - Validate the result with `npm install` and `npm run build`
+
+## When Not to Use
+
+The extension already exists — the target folder has a `package.json` depending on `@kvaser/canking-api`.
+Adding a feature, fixing a build, upgrading the SDK, running it in CanKing, and packaging it are covered by
+`develop-canking-gui-extension`. Use that instead of scaffolding over an existing project.
 
 ## Create Script Interface
 
@@ -155,8 +161,9 @@ Additional rules:
 
 ## Procedure
 
-1. Inspect the target folder for an existing `package.json` with `@kvaser/canking-api` as a dependency.
-If the folder already contains one, reuse the existing extension: skip scaffolding and go to step 5. Otherwise, if a project name other than `.` is resolved, the script creates that subfolder. If the project name is `.`, scaffolding happens in the current directory; check first whether that directory already contains files, and if it does, warn the user that scaffolding may overwrite existing files and ask for confirmation before proceeding.
+1. Confirm there is nothing to scaffold over.
+Inspect the target folder for an existing `package.json` with `@kvaser/canking-api` as a dependency. If one is already there, this is the wrong skill: stop and switch to `develop-canking-gui-extension`, which works on an existing extension.
+Otherwise, if a project name other than `.` is resolved, the script creates that subfolder. If the project name is `.`, scaffolding happens in the current directory; check first whether that directory already contains files, and if it does, warn the user that scaffolding may overwrite existing files and ask for confirmation before proceeding.
 
 2. Resolve all scaffold values before running anything.
 Apply the input extraction and default rules above. Validate the package name and confirm the display name is not empty. Ask the user once for whatever is still unresolved.
@@ -173,37 +180,25 @@ If the command fails (network error, package not found), report the exact error 
 4. Complete dependency installation immediately after scaffolding.
 Run `npm install` in the generated project so that local docs, type definitions, and build scripts are available. If `npm install` fails, report the error verbatim and check whether a custom registry or `.npmrc` configuration is needed for `@kvaser` scoped packages.
 
-5. Read the local CanKing SDK docs before editing implementation files.
-Start at `node_modules/@kvaser/canking-api/doc_md/README.md`, then read only the specific doc file for the hooks, controls, models, or ipc calls relevant to the requested feature.
+5. Read the shared implementation conventions.
+Read `references/implementation-conventions.md` next to this skill. It holds the SDK documentation map, the project layout, the conventions the implementation must follow, and the validation loop. The rest of this procedure assumes it.
 
-6. Find the owning implementation surface.
-The generated project contains:
-
-- `src/WorkspaceView/index.tsx` — the primary implementation target, a sample view wired up with `useProjectDataSlice`, `useSessionDataSlice`, `useOnlineStatusSync`, `useNumericRadix`, `CanChannelSelectControl`, `CanIdentifierControl`, and `sendCanMessage`
-- `src/Dialogs/` — extension dialogs opened with `openExtensionDialog`, registered in the `dialogs` lookup table in `src/Dialogs/index.tsx`; add a dialog only when the feature needs UI larger than the workspace pane
-- `src/App.tsx` and `src/DialogApp.tsx` — entry points that set up `CanKingDataProvider` and pass `id`, `height`, and `width`; normally left untouched
-- `src/assets/icon.png` — sample asset showing how images are imported
-- `package.json` — `canking.workspaceViewName` holds the display name; edit it there if the name changes later
-
-Read the existing `src/WorkspaceView/index.tsx` and identify which SDK hooks and controls the requested behavior needs before editing. If they are not covered by the docs read in step 5, read additional files under `node_modules/@kvaser/canking-api/doc_md`. If still not found, report the gap to the user before implementing.
+6. Read the SDK docs for the requested feature, then the generated view.
+Following the documentation map, start at `node_modules/@kvaser/canking-api/doc_md/README.md` and read only the specific pages for the hooks, controls, ipc functions, or models the requested behavior needs.
+Then read the generated `src/WorkspaceView/index.tsx` — a sample view wired up with `useProjectDataSlice`, `useSessionDataSlice`, `useOnlineStatusSync`, `useNumericRadix`, `CanChannelSelectControl`, `CanIdentifierControl`, and `sendCanMessage` — to see how those pieces fit together before changing it.
+If the API the feature needs does not appear to exist, report the gap to the user before implementing a workaround.
 
 7. Implement the requested behavior in the WorkspaceView.
-Replace scaffold sample content with the requested UI and logic.
-Keep the `SizedBox` with the passed `height` and `width` so the view stays responsive.
-Keep the data-loaded guard pattern when using `useProjectDataSlice` or `useSessionDataSlice`, so the view does not render default values before the stored values arrive.
-Use MUI components directly. Only introduce a React wrapper component when it manages its own state, side effects, or event handling that would otherwise be duplicated in two or more places.
-Use colors from the active MUI theme instead of hard-coded light or dark palette values so the result honors the current theme setting automatically.
+Replace the scaffold sample content with the requested UI and logic, following the implementation conventions from the reference file.
 Keep the edit minimal, preserve the generated project structure, and persist view-specific state using the CanKing hooks when needed.
+Add a dialog under `src/Dialogs/` only when the feature needs UI larger than the workspace pane.
 
 8. Validate immediately after the first substantive edit.
-Prefer `npm run build` as the first focused validation step.
-Run `npx eslint .` for additional lint feedback; the generated project ships an `eslint.config.mjs` and the eslint dependency.
-If the implementation introduces styling, check that the styling reads from the MUI theme rather than hard-coded colors whenever a theme token is available.
-If the lint or build fails, repair the same slice and rerun the same validation before expanding scope.
-If `npx eslint .` reports errors that cannot be resolved without changing intended behavior (e.g., required use of `any`, disabled rule conflicts), list them explicitly in the summary and ask the user how to proceed rather than silently suppressing them.
+Run the validation loop from the reference file: `npm run build`, then `npx eslint .`, repairing and rerunning before expanding scope.
 
 9. Summarize the outcome.
-Report the exact create command used, which scaffold values were assumed rather than given, what was implemented, which SDK docs were used, whether `npm run build` passed, and whether runtime validation in CanKing is still needed. Mention `npm run start` as the way to launch the extension in CanKing.
+Report the exact create command used, which scaffold values were assumed rather than given, what was implemented, which SDK docs were used, whether `npm run build` passed, and whether runtime validation in CanKing is still needed. Mention `npm run start` as the way to launch the extension in CanKing — it opens CanKing itself and does not exit, so leave it to the user to run.
+Close by pointing at `develop-canking-gui-extension` for the work that comes next: further features, dialogs, SDK upgrades, and packaging.
 
 ## Quality Checks
 
@@ -213,8 +208,7 @@ Report the exact create command used, which scaffold values were assumed rather 
 - `npm install` completed in the generated project
 - Relevant docs under `node_modules/@kvaser/canking-api/doc_md` were consulted
 - `src/WorkspaceView/index.tsx` implements the requested feature rather than the default sample
-- MUI components are used where they fit the requested UI without adding unnecessary complexity
-- Visual styling uses MUI theme colors or theme tokens instead of hard-coded light or dark mode colors when possible
+- The shared implementation conventions were followed: `SizedBox` keeps the passed `height` and `width`, data slices are guarded on their loaded flag, MUI components are used where they fit, and colors come from the active theme
 - `npm run build` and `npx eslint .` pass after the implementation
 - Any remaining runtime-only validation is called out explicitly
 
