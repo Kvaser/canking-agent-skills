@@ -20,6 +20,7 @@ DEVELOP_SKILL=skills/develop-canking-gui-extension
 # Files duplicated between the two skills, relative to each skill folder.
 SHARED_FILES=(
   references/implementation-conventions.md
+  references/testing.md
 )
 
 usage() {

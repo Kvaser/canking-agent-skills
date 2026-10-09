@@ -13,11 +13,12 @@ The SDK ships its own docs inside the project. Read them from `node_modules/@kva
 | Path | Holds |
 | --- | --- |
 | `doc_md/README.md` | The SDK introduction: what an extension is, project layout, dev loop, dialogs, packaging, installing. Start here. |
-| `doc_md/modules.md` | Index of the four modules. |
+| `doc_md/modules.md` | Index of the modules. |
 | `doc_md/hooks/` | Reading and subscribing to CanKing data: `useProjectDataSlice`, `useSessionDataSlice`, `useSignalData`, `useMessageData`, `useMeasurementSetup`, `useOnlineStatusSync`, `useNumericRadix`, `useUserSettings`, and the rest. |
 | `doc_md/controls/` | Ready-made UI matching the CanKing look: `SizedBox`, `CanChannelSelectControl`, `CanIdentifierControl`, `SelectSignalDialog`, `SelectMessageDialog`, `TableControl`, `ToolbarControl`, `CanKingDataProvider`, and the rest. |
 | `doc_md/ipc/` | Actions against CanKing: `sendCanMessage`, `startMeasurement`, `startPeriodicTransmission`, `openExtensionDialog`, `showMessageBox`, and the rest. |
 | `doc_md/models/` | The data types those APIs pass around, such as `Frame`. |
+| `doc_md/testing/` | SDK 7.7 and later: the fake CanKing host and test data builders for testing an extension without CanKing. See `testing.md` next to this file. |
 | `CHANGELOG.md` | What changed per SDK version, with migration notes. Not under `doc_md`. Read this when the installed SDK version changed. |
 
 Each module folder has a `README.md` listing its exports, then one page per export under `functions/`,
@@ -94,12 +95,34 @@ if (outcome.result?.saved) { ... }
 
 Closing the window any other way resolves with no result — that is how a cancel is reported.
 
+**Give controls an `aria-label`.** Visible text comes from `useLocalizedStrings`, so it differs between
+languages, and in tests against the fake host it is the string key ("ButtonSave") rather than the text. An
+`aria-label` such as `zoom-all-data-button` is the same everywhere, which makes the control findable by
+tests in every environment, and by screen readers. Give every button its own label: two buttons with the same
+label cannot be told apart.
+
+**Do not update a parent's state from `react-resize-detector`'s `onResize` without `disableRerender`.**
+`useResizeDetector` (version 12) calls `onResize` from inside its own state updater, which React runs while
+rendering the component that uses the hook. If `onResize` sets state in a parent, React warns about updating
+one component while rendering another. When the component only needs the hook's `ref`, pass
+`disableRerender: true`: `onResize` is then called straight from the ResizeObserver, and the component skips
+a re-render per resize.
+
+```tsx
+const { ref } = useResizeDetector({ onResize, disableRerender: true });
+```
+
 ## Validation Loop
 
 Validate after the first substantive edit, not at the end of a batch of them.
 
 1. `npm run build` — the primary check. It runs `tsc -b` and the Vite build, so it catches type errors.
 2. `npx eslint .` — the project ships `eslint.config.mjs` and the eslint dependency.
+3. `npm run test:run` — when the project has tests (a `test` or `test:run` script, or a
+   `vitest.config.ts`). It runs the unit and component tests once and exits; without a `test:run` script,
+   use `npx vitest run`. Do not use `npm test` for this: it starts Vitest in watch mode and never exits. Run the browser tests (`npm run test:e2e`) as well
+   when the change affects drawing, mouse input or what survives a reload. See `testing.md` next to this
+   file.
 
 Rules:
 
@@ -107,4 +130,6 @@ Rules:
 - If eslint reports errors that cannot be resolved without changing intended behavior (a required `any`, a
   rule conflict), list them in the summary and ask how to proceed. Do not silently add suppressions.
 - A build or lint failure that was already there before the edit is worth reporting as pre-existing rather
-  than fixing unasked.
+  than fixing unasked. The same goes for a failing test.
+- A failing test is a finding, not an obstacle. Decide whether the code or the test is wrong before changing
+  either, and say which in the summary. Do not weaken an assertion just to get a green run.

@@ -18,6 +18,7 @@ This skill packages the workflow from scaffold to first working implementation. 
 - Read the local SDK docs in `node_modules/@kvaser/canking-api/doc_md`
 - Implement or replace `src/WorkspaceView/index.tsx`
 - Validate the result with `npm install` and `npm run build`
+- Replace the generated example tests with tests of the requested behavior, when the project comes with tests
 
 ## When Not to Use
 
@@ -40,6 +41,11 @@ npm create @kvaser/canking-extension@latest <project-name> -- --package-name <na
 | display name | `--display-name <name>` | Name shown for the extension in CanKing (`canking.workspaceViewName`). Must not be empty. |
 | description | `--description <text>` | `package.json` `description`. May be an empty string. |
 | author | `--author <name>` | `package.json` `author`. May be an empty string. |
+| browser tests | `--with-e2e` | Optional flag, never asked for. Adds Playwright browser tests to the project. Pass it only when the user asks for browser tests, and only if the installed script lists it in `-- --help`. |
+
+Recent versions of the script also set the project up for component tests: Vitest, a setup file that installs
+the fake CanKing host, and an example test of the sample view, with `test` and `test:run` scripts. Older
+versions do not. Check the generated project rather than assuming either.
 
 Rules that follow from the script's behavior:
 
@@ -182,6 +188,7 @@ Run `npm install` in the generated project so that local docs, type definitions,
 
 5. Read the shared implementation conventions.
 Read `references/implementation-conventions.md` next to this skill. It holds the SDK documentation map, the project layout, the conventions the implementation must follow, and the validation loop. The rest of this procedure assumes it.
+If the generated project has tests (a `vitest.config.ts` and a `test:run` script), also read `references/testing.md` next to this skill.
 
 6. Read the SDK docs for the requested feature, then the generated view.
 Following the documentation map, start at `node_modules/@kvaser/canking-api/doc_md/README.md` and read only the specific pages for the hooks, controls, ipc functions, or models the requested behavior needs.
@@ -193,11 +200,16 @@ Replace the scaffold sample content with the requested UI and logic, following t
 Keep the edit minimal, preserve the generated project structure, and persist view-specific state using the CanKing hooks when needed.
 Add a dialog under `src/Dialogs/` only when the feature needs UI larger than the workspace pane.
 
-8. Validate immediately after the first substantive edit.
-Run the validation loop from the reference file: `npm run build`, then `npx eslint .`, repairing and rerunning before expanding scope.
+8. Replace the example tests along with the sample view.
+When the project came with tests, `src/WorkspaceView/WorkspaceView.test.tsx` tests the *sample* view: its CAN channel picker and its Send CAN Message button. Once the sample is replaced those tests fail, and they test nothing that still exists. Replace them with component tests of the requested behavior, written against the fake host, following `references/testing.md`. Typical first tests are that the view shows its data, and that settings it saves come back after a remount.
+If the project came with `--with-e2e`, update `e2e/example.spec.ts` the same way.
+Never delete the example tests without replacing them, and never leave them failing.
 
-9. Summarize the outcome.
-Report the exact create command used, which scaffold values were assumed rather than given, what was implemented, which SDK docs were used, whether `npm run build` passed, and whether runtime validation in CanKing is still needed. Mention `npm run start` as the way to launch the extension in CanKing — it opens CanKing itself and does not exit, so leave it to the user to run.
+9. Validate immediately after the first substantive edit.
+Run the validation loop from the reference file: `npm run build`, then `npx eslint .`, then `npm run test:run` when the project has tests, repairing and rerunning before expanding scope.
+
+10. Summarize the outcome.
+Report the exact create command used, which scaffold values were assumed rather than given, what was implemented, which SDK docs were used, whether `npm run build` passed, which tests were written and whether they pass, and whether runtime validation in CanKing is still needed. Mention `npm run start` as the way to launch the extension in CanKing — it opens CanKing itself and does not exit, so leave it to the user to run.
 Close by pointing at `develop-canking-gui-extension` for the work that comes next: further features, dialogs, SDK upgrades, and packaging.
 
 ## Quality Checks
@@ -210,6 +222,8 @@ Close by pointing at `develop-canking-gui-extension` for the work that comes nex
 - `src/WorkspaceView/index.tsx` implements the requested feature rather than the default sample
 - The shared implementation conventions were followed: `SizedBox` keeps the passed `height` and `width`, data slices are guarded on their loaded flag, MUI components are used where they fit, and colors come from the active theme
 - `npm run build` and `npx eslint .` pass after the implementation
+- When the project came with tests, the sample view's tests were replaced by tests of the requested
+  behavior, and `npm run test:run` passes
 - Any remaining runtime-only validation is called out explicitly
 
 ## Output Expectations
@@ -219,6 +233,7 @@ The completed result should leave the user with:
 - A scaffolded CanKing GUI extension project
 - A first implementation of the requested WorkspaceView behavior
 - A UI that follows the active MUI theme for light and dark mode when theme tokens are available
+- Tests of the requested behavior, when the create script set the project up for tests
 - A clear record of the create command and any assumed scaffold values
 - A successful build or a precise explanation of the blocker
 

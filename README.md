@@ -5,12 +5,16 @@ Agent coding skills for working with [Kvaser CanKing](https://kvaser.com/canking
 ## Skills
 
 - [`create-canking-gui-extension`](skills/create-canking-gui-extension/SKILL.md) — Scaffold a **new** CanKing WorkspaceView extension from a natural-language feature request, run the `npm create @kvaser/canking-extension` script with the values taken from your request, and implement the first working version of `src/WorkspaceView/index.tsx` using the `@kvaser/canking-api` SDK.
-- [`develop-canking-gui-extension`](skills/develop-canking-gui-extension/SKILL.md) — Work on an **existing** extension: add features and dialogs, fix build and lint breaks, upgrade the SDK, run it in CanKing against real bus data, and package it as a `.tgz` or `.ckext`.
+- [`develop-canking-gui-extension`](skills/develop-canking-gui-extension/SKILL.md) — Work on an **existing** extension: add features and dialogs, fix build and lint breaks, write and run tests against the fake CanKing host from `@kvaser/canking-api/testing`, upgrade the SDK, run it in CanKing against real bus data, and package it as a `.tgz` or `.ckext`.
 
 The two skills split at whether the project exists yet. `create` takes you from an empty folder to a first
-working view and then hands off; `develop` covers everything after that. They share
-`references/implementation-conventions.md` — the SDK doc map, project layout, and coding conventions — of
-which each skill folder carries its own copy so either can be installed on its own. Edit one, sync the other.
+working view and then hands off; `develop` covers everything after that. They share two references, of
+which each skill folder carries its own copy so either can be installed on its own. Edit one, sync the other:
+
+- `references/implementation-conventions.md` — the SDK doc map, project layout, coding conventions, and the
+  validation loop
+- `references/testing.md` — testing an extension without CanKing: unit and component tests with Vitest
+  against the fake CanKing host, browser tests with Playwright, and tests in the real CanKing
 
 ## Installation
 
@@ -77,8 +81,8 @@ See each skill's `SKILL.md` for details on supported inputs and behavior.
 
 ## Contributing
 
-Both skill folders carry their own copy of `references/implementation-conventions.md` so either skill can
-be installed on its own. After editing one copy, propagate it:
+Both skill folders carry their own copy of the shared references in `references/` so either skill can be
+installed on its own. After editing one copy, propagate it:
 
 ```bash
 bash tools/sync-references.sh --from create    # or --from develop

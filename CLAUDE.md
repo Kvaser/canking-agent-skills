@@ -10,14 +10,17 @@ skills/
   create-canking-gui-extension/     new extension: scaffold + first working WorkspaceView
     SKILL.md
     references/implementation-conventions.md
-  develop-canking-gui-extension/    existing extension: change, validate, run, package
+    references/testing.md
+  develop-canking-gui-extension/    existing extension: change, test, validate, run, package
     SKILL.md
     references/implementation-conventions.md
+    references/testing.md
 ```
 
 ## Keep the two reference copies in sync
 
-`references/implementation-conventions.md` is **duplicated verbatim** in both skill folders. Each skill
+`references/implementation-conventions.md` and `references/testing.md` are **duplicated verbatim** in both
+skill folders. Each skill
 carries its own copy so either can be installed on its own — the manual install in the README copies one
 skill folder at a time, and a `../shared/` path would break for anyone who installs just one skill.
 
@@ -48,7 +51,9 @@ picked.
 - **develop** — everything after that: features, dialogs, build breaks, SDK upgrades, running in CanKing,
   packaging.
 
-Anything that applies to both belongs in `references/implementation-conventions.md`, not in one SKILL.md.
+Anything that applies to both belongs in the shared references, not in one SKILL.md: coding conventions and
+the validation loop in `references/implementation-conventions.md`, how to test an extension in
+`references/testing.md`.
 
 ## Writing and changing skills
 
@@ -56,6 +61,13 @@ Anything that applies to both belongs in `references/implementation-conventions.
 `@kvaser/canking-api` cannot be checked from here. Check them in an actual extension project — for example
 `../canking-ext-signalplot` — against `node_modules/@kvaser/canking-api/doc_md/` and `CHANGELOG.md`. An API
 that does not exist is worse than an omission: the agent will confidently write code against it.
+
+**Testing guidance comes from practice.** `references/testing.md` records what actually worked, and what
+failed, when testing a real extension (`../canking-ext-signalplot` has unit, component, browser and
+real-CanKing tests). When changing it, check the claim in such a project rather than reasoning about it: most
+entries there are pitfalls that looked fine on paper. The fake host is `@kvaser/canking-api/testing`, from SDK
+7.7; the create script's test setup and `--with-e2e` flag come with a create script release, which can lag
+behind the SDK.
 
 **Bump the SDK version reference when CanKing releases.** The docs and conventions here track a specific
 `@kvaser/canking-api` version. When a release changes an API these skills describe, update both the
