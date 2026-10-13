@@ -192,7 +192,7 @@ If the generated project has tests (a `vitest.config.ts` and a `test:run` script
 
 6. Read the SDK docs for the requested feature, then the generated view.
 Following the documentation map, start at `node_modules/@kvaser/canking-api/doc_md/README.md` and read only the specific pages for the hooks, controls, ipc functions, or models the requested behavior needs.
-Then read the generated `src/WorkspaceView/index.tsx` — a sample view wired up with `useProjectDataSlice`, `useSessionDataSlice`, `useOnlineStatusSync`, `useNumericRadix`, `CanChannelSelectControl`, `CanIdentifierControl`, and `sendCanMessage` — to see how those pieces fit together before changing it.
+Then read the generated `src/WorkspaceView/index.tsx` — a sample view wired up with `useProjectDataSlice`, `useSessionDataSlice`, `useOnlineStatusSync`, `CanChannelSelectControl`, `CanIdentifierControl`, and `sendCanMessage` — to see how those pieces fit together before changing it.
 If the API the feature needs does not appear to exist, report the gap to the user before implementing a workaround.
 
 7. Implement the requested behavior in the WorkspaceView.

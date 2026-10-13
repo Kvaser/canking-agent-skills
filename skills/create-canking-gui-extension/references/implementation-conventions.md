@@ -95,11 +95,21 @@ if (outcome.result?.saved) { ... }
 
 Closing the window any other way resolves with no result — that is how a cancel is reported.
 
-**Give controls an `aria-label`.** Visible text comes from `useLocalizedStrings`, so it differs between
-languages, and in tests against the fake host it is the string key ("ButtonSave") rather than the text. An
-`aria-label` such as `zoom-all-data-button` is the same everywhere, which makes the control findable by
-tests in every environment, and by screen readers. Give every button its own label: two buttons with the same
-label cannot be told apart.
+**Give every control an accessible name, and let visible text be the name.** Tests find controls by role and
+name, `getByRole('button', { name: ... })`, and screen readers announce the same name.
+
+- A control that shows text, such as a button, a field label, a checkbox label or an option, is named by that
+  text. Do not replace it with an `aria-label`: a screen reader would then announce the label instead of what
+  the user sees, and voice control could not find the control. Text from `useLocalizedStrings` differs between
+  languages, but against the fake host it is the string key ("ButtonSave"), so tests can rely on it.
+- A control without text, such as an icon button or a field without a label, needs an `aria-label` such as
+  `zoom-all-data-button`. Give each one its own: two buttons with the same label cannot be told apart.
+- From SDK 7.7 the SDK controls follow the same rule. `TextControl`, `ValidateableTextControl` and
+  `SelectControl` are named by their label, or by their `id` when no label is shown. `CheckboxControl` and
+  `RadioControl` are named by their label, and the options of `SelectControl` by their text. Each takes an
+  `ariaLabel` prop to override the name. Controls made of several fields, such as `CanChannelSelectControl` and
+  `CanIdentifierControl`, take an `id`: give each instance its own when a view has two, e.g. `input-channel`
+  and `output-channel`.
 
 **Do not update a parent's state from `react-resize-detector`'s `onResize` without `disableRerender`.**
 `useResizeDetector` (version 12) calls `onResize` from inside its own state updater, which React runs while

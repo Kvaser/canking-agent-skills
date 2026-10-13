@@ -110,8 +110,9 @@ Things that are easy to get wrong:
 - **Seed state before the view mounts.** `setProjectSlice` and `setSessionSlice` stand in for a saved
   project. Set them before rendering; a mounted view has already read its slices.
 - **The fake has no localized strings.** `useLocalizedStrings().getString('ButtonSave')` returns the key
-  itself, so a button reads "ButtonSave" in a test and "Save" in CanKing. Prefer an `aria-label`, which is the
-  same in both. See the conventions file.
+  itself, so a button reads "ButtonSave" in a test and "Save" in CanKing. Find a control by its string key,
+  `getByRole('button', { name: 'ButtonSave' })`, and use an `aria-label` only on controls without visible text.
+  A test against CanKing itself sees the translated text instead. See the conventions file.
 - **Qualified names have a database part.** Signal pickers group messages by the part of
   `messageQualifiedName` before the first dot and drop a message without one. Build test data as
   `Database.Message` and `Database.Message.Signal`, e.g. `makeFrameDefinition('Powertrain.Engine', ...)`.
