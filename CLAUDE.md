@@ -80,11 +80,11 @@ the background.
 **Distinguish GUI extensions from service extensions.** GUI extensions are React apps built on
 `@kvaser/canking-api`, packed from a `.tgz`. Service extensions are WASM data processors and targets, packed
 from a `.wasm` — a different SDK, which these skills do not cover. Both go through the same packaging and
-installation path: `ck pack extension` writes a `.ckext` bundle for either, and `ck install extension`
+installation path: `ck extension pack` writes a `.ckext` bundle for either, and `ck extension install`
 installs it.
 
 **The CanKing MCP extension tools are the CLI.** `pack_extension`, `install_extension`, and
-`uninstall_extension` shell out to `ck pack extension`, `ck install extension`, and `ck uninstall extension`
+`uninstall_extension` shell out to `ck extension pack`, `ck extension install`, and `ck extension uninstall`
 (see `CanKingMcpServer/Tools/ExtensionTools.cs`), so they apply to GUI extensions and the develop skill
 prefers them when the MCP server is connected. An MCP build older than CanKing 7.6 describes them as
 service-extension-only; that wording is stale, not a real limitation. Two real gaps to preserve if these

@@ -1,6 +1,6 @@
 ---
 name: develop-canking-gui-extension
-description: 'Work on an existing Kvaser CanKing GUI extension. Use when changing, extending, debugging, or reviewing a project that depends on @kvaser/canking-api — adding a feature or dialog to src/WorkspaceView, fixing a build or lint break, writing and running tests against the fake CanKing host from @kvaser/canking-api/testing (Vitest and Playwright), upgrading the SDK version, running the extension in CanKing with npm run start, and packaging it with npm pack and ck pack extension.'
+description: 'Work on an existing Kvaser CanKing GUI extension. Use when changing, extending, debugging, or reviewing a project that depends on @kvaser/canking-api — adding a feature or dialog to src/WorkspaceView, fixing a build or lint break, writing and running tests against the fake CanKing host from @kvaser/canking-api/testing (Vitest and Playwright), upgrading the SDK version, running the extension in CanKing with npm run start, and packaging it with npm pack and ck extension pack.'
 argument-hint: 'Describe the change you want in the existing extension, for example: add a settings dialog for the plot colors'
 ---
 
@@ -147,32 +147,32 @@ afterwards.
 
 ```bash
 npm pack                 # -> <name>-<version>.tgz, enough to install
-npm run package          # build + npm pack + ck pack extension, if the project has this script
+npm run package          # build + npm pack + ck extension pack, if the project has this script
 ```
 
 `npm pack` alone produces a `.tgz` that CanKing can install, but it carries no documentation. The `.ckext`
 bundle is the distributable format and adds the README, changelog, license, and user guide:
 
 ```bash
-ck pack extension my-ck-extension-1.0.0.tgz --readme README.md --changelog CHANGELOG.md --license LICENSE.txt --userguide userguide.md
+ck extension pack my-ck-extension-1.0.0.tgz --readme README.md --changelog CHANGELOG.md --license LICENSE.txt --userguide userguide.md
 ```
 
 `ck` is the CanKing CLI, installed with CanKing (on Windows, typically
 `C:/Program Files/Kvaser CanKing/service/ck.exe`). It is not necessarily on `PATH`; older projects have no
 `package` script at all. Check before assuming either.
 
-Install with `ck install extension <file> --replace`, or tell the user to use **More → Extensions →
+Install with `ck extension install <file> --replace`, or tell the user to use **More → Extensions →
 Install** in the CanKing UI. `--replace` updates an already installed extension of the same name. Install
 accepts the `.tgz` directly as well as a packed `.ckext` — a bare `.tgz` is bundled into a `.ckext` on the
 way in.
 
 **Prefer the CanKing MCP tools when that server is connected.** `pack_extension`, `install_extension`, and
-`uninstall_extension` invoke `ck pack extension`, `ck install extension`, and `ck uninstall extension` —
+`uninstall_extension` invoke `ck extension pack`, `ck extension install`, and `ck extension uninstall` —
 same commands, same options, same `.ckext` output — and they work for GUI extensions. Using them avoids
 having to locate `ck.exe`. Three things to know:
 
 - An MCP server older than CanKing 7.6 describes these tools as service-extension-only. Ignore that —
-  `ck pack extension` takes a `.tgz` GUI package as readily as a `.wasm`, and what it writes is always
+  `ck extension pack` takes a `.tgz` GUI package as readily as a `.wasm`, and what it writes is always
   `<name>.ckext`.
 - Pass **absolute** paths. The MCP server resolves relative paths against its own working directory, not
   the extension project folder.
@@ -182,7 +182,7 @@ having to locate `ck.exe`. Three things to know:
   CanKing finds them by filename prefix (`README*`, `CHANGELOG*` / `RELEASENOTES*` / `HISTORY*`,
   `LICENSE*` / `EULA*`, `HELP*` / `USERGUIDE*` / `MANUAL*`), case-insensitively, and only at the root.
   Never point it at the project root — `node_modules` would be packed too. If a staging folder is awkward,
-  use `ck pack extension` directly with the doc options.
+  use `ck extension pack` directly with the doc options.
 
 ### 9. Summarize
 
