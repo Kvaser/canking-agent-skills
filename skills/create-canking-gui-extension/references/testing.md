@@ -113,6 +113,10 @@ Things that are easy to get wrong:
   itself, so a button reads "ButtonSave" in a test and "Save" in CanKing. Find a control by its string key,
   `getByRole('button', { name: 'ButtonSave' })`, and use an `aria-label` only on controls without visible text.
   A test against CanKing itself sees the translated text instead. See the conventions file.
+  From SDK 7.7 the extension's own strings, passed with the `strings` prop of `CanKingDataProvider`, are shown
+  as text in tests too, so render the view with `<CanKingDataProvider strings={strings}>` and find its controls
+  by that text. `reset({ builtInStrings: true })` makes the fake send the built-in strings as well, for a test
+  of the real wording or of another language (`userSettings: { language: 'ja' }`).
 - **Qualified names have a database part.** Signal pickers group messages by the part of
   `messageQualifiedName` before the first dot and drop a message without one. Build test data as
   `Database.Message` and `Database.Message.Signal`, e.g. `makeFrameDefinition('Powertrain.Engine', ...)`.

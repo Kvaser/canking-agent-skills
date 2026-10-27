@@ -18,6 +18,9 @@ The SDK ships its own docs inside the project. Read them from `node_modules/@kva
 | `doc_md/controls/` | Ready-made UI matching the CanKing look: `SizedBox`, `CanChannelSelectControl`, `CanIdentifierControl`, `SelectSignalDialog`, `SelectMessageDialog`, `TableControl`, `ToolbarControl`, `CanKingDataProvider`, and the rest. |
 | `doc_md/ipc/` | Actions against CanKing: `sendCanMessage`, `startMeasurement`, `startPeriodicTransmission`, `openExtensionDialog`, `showMessageBox`, and the rest. |
 | `doc_md/models/` | The data types those APIs pass around, such as `Frame`. |
+| `doc_md/strings/` | SDK 7.7 and later: CanKing's built-in strings and the helpers for an extension's own, `defineStrings` and `parseResText`. |
+| `doc_md/documents/Localization.md` | SDK 7.7 and later: how to show text in the user's language, with built-in and your own strings. |
+| `doc_md/documents/Built-in-strings.md` | SDK 7.7 and later: every built-in string key, with its English, Japanese and Chinese text. Search it for a key rather than reading it whole. |
 | `doc_md/testing/` | SDK 7.7 and later: the fake CanKing host and test data builders for testing an extension without CanKing. See `testing.md` next to this file. |
 | `CHANGELOG.md` | What changed per SDK version, with migration notes. Not under `doc_md`. Read this when the installed SDK version changed. |
 
@@ -41,6 +44,7 @@ A scaffolded project contains:
 | `src/Dialogs/*.tsx` | One file per dialog opened with `openExtensionDialog`. |
 | `src/App.tsx`, `src/DialogApp.tsx` | Entry points that set up `CanKingDataProvider` and pass `id`, `height`, and `width`. Normally left untouched. |
 | `src/main.tsx` | Routing, including `/dialog/:dialogId` to `DialogApp`. Normally left untouched. |
+| `src/strings.ts` | SDK 7.7 and later: the extension's own strings by language, passed to `CanKingDataProvider` with the `strings` prop. |
 | `src/assets/icon.png` | Sample asset showing how images are imported. |
 | `package.json` | `canking.workspaceViewName` is the name CanKing shows for the extension; `canking.extensionType` is the surface (`WorkspaceView`). |
 | `.vscode/launch.json` | The `Debug` configuration used by F5 in VS Code. |
@@ -94,6 +98,20 @@ if (outcome.result?.saved) { ... }
 ```
 
 Closing the window any other way resolves with no result — that is how a cancel is reported.
+
+**Show text in the user's language.** CanKing runs in English, Japanese and Chinese. Show visible text with
+`useLocalizedStrings().getString(key)` from `@kvaser/canking-api/hooks` rather than hard-coding it:
+
+- Reuse a built-in key where one fits, e.g. `ButtonSave`, `ButtonCancel` or `LabelChannel`: it needs no
+  translation and matches CanKing's wording. From SDK 7.7 the keys are listed in `Built-in-strings.md`, see
+  the documentation map.
+- From SDK 7.7, add the extension's own keys to `src/strings.ts` with `defineStrings`, English required and
+  `ja`/`zh` where you have translations, and pass them to `CanKingDataProvider` with the `strings` prop, in
+  both `App.tsx` and `DialogApp.tsx`. Prefix the keys with the extension's name, e.g. `MyExtLabelGain`: a key
+  of the extension's takes precedence over a built-in one with the same key.
+- Placeholders `{0}`, `{1}`, ... are filled in from the arguments: `getString('MyExtLabelCount', count)`.
+  There are no plurals; phrase strings to work for any number.
+- Before SDK 7.7, an extension can only use the built-in keys CanKing sends, so its own text is hard-coded.
 
 **Give every control an accessible name, and let visible text be the name.** Tests find controls by role and
 name, `getByRole('button', { name: ... })`, and screen readers announce the same name.
