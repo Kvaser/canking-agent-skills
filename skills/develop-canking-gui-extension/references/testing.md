@@ -7,9 +7,10 @@ An extension can be tested without CanKing. The SDK reaches CanKing only through
 `window.electron.ipcRenderer`, and `@kvaser/canking-api/testing` (SDK 7.7 and later) has a fake CanKing host
 that stands in for it. The fake host:
 
-- answers what a view asks for: user settings, online status, timestamps, frame definitions, signal
-  envelopes and extension dialogs
-- keeps the session and project data a view saves, so a test can read it back
+- answers what a view asks for: user settings, online status, timestamps, frame definitions, the measurement
+  setup and its node statuses, devices, signal envelopes, extension dialogs and question boxes
+- keeps the session and project data a view saves, and the periodic transmissions it starts, so a test can
+  read them back
 - lets a test push events to the view, such as going online, frames, signal values, live signal envelopes
   and event log messages
 
@@ -98,8 +99,16 @@ fakeHost.setProjectSlice(1, 'channelId', 'ch0');
 render(<CanKingDataProvider><WorkspaceView id={1} height={600} width={800} /></CanKingDataProvider>);
 
 await userEvent.click(screen.getByRole('button', { name: 'Send CAN Message' }));
-await waitFor(() => expect(fakeHost.callsTo('mm-send-message')).toHaveLength(1));
+await waitFor(() => expect(fakeHost.callsTo(IpcInvokeChannels.sendMessage)).toHaveLength(1));
 ```
+
+`IpcInvokeChannels` and `IpcEventChannels` from `@kvaser/canking-api/testing` name the channels; prefer them
+to channel strings, which a typo turns into a test that waits for a call that never comes.
+
+Build test data with the `make*` fixtures rather than by hand: `makeFrameDefinition`, `makeFrame`,
+`makeCanChannel`, `makeLinChannel`, `makeDatabasesNode`, `makeMessageLoggerNode` and `makeNodeStatus` for
+`reset({ measurementSetup, nodeStatuses })`, and so on. `makeFrame` gives each frame a `hashCode` of its own,
+as CanKing does; frames built by hand with the default `hashCode` of 0 give duplicate row keys in a grid.
 
 Things that are easy to get wrong:
 
@@ -109,6 +118,22 @@ Things that are easy to get wrong:
   the default is a single pane, 1.
 - **Seed state before the view mounts.** `setProjectSlice` and `setSessionSlice` stand in for a saved
   project. Set them before rendering; a mounted view has already read its slices.
+- **`useProjectData` has a slice of its own.** Seed and read it with `setProjectData(id, value)` and
+  `getProjectData(id)`, not with `setProjectSlice` and the SDK's internal slice name.
+- **Question boxes are cancelled.** `showQuestionBox` resolves with the box's cancel button, as if the user
+  pressed Esc, so a view that asks "Are you sure?" does nothing by default. Answer with
+  `setQuestionBoxAnswer(0)` (or `reset({ questionBoxAnswer: 0 })`), and assert on `fakeHost.messageBoxes`,
+  which records every message and question box shown.
+- **Periodic transmissions get ids from the host.** A view's `startPeriodicTransmission` resolves with
+  `pt-1`, `pt-2`, ... and the host tells the views it started. Check `fakeHost.runningPeriodicTransmissions`
+  and `fakeHost.periodicTransmissionSettings('pt-1')`. To have one running before the view mounts, use
+  `reset({ runningPeriodicTransmissions: ['pt-1'] })`.
+- **Test answers that arrive late or out of order.** `const release = fakeHost.hold(channel)` holds back
+  every answer on a channel until `release()`; `deferNext(channel)` holds back only the next one. Use them
+  for races, e.g. live frames arriving before the answer to the view's history request.
+  `reset` releases whatever is still held.
+- **`reset` clears `handle()` overrides.** A shared test helper that answers channels of its own with
+  `handle` sets them up again in `fakeHost.onReset(...)`, or they are gone after the first test.
 - **The fake has no localized strings.** `useLocalizedStrings().getString('ButtonSave')` returns the key
   itself, so a button reads "ButtonSave" in a test and "Save" in CanKing. Find a control by its string key,
   `getByRole('button', { name: 'ButtonSave' })`, and use an `aria-label` only on controls without visible text.
