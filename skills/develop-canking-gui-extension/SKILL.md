@@ -80,6 +80,9 @@ pages. If the API you need does not appear to exist, say so before implementing 
 
 When the change involves tests, or the project has them, also read `references/testing.md` next to this skill.
 
+When the change involves log file mode, sending frames, or reading recorded data, or `package.json` lists
+`supportedModes`, also read `references/log-file-mode.md` next to this skill.
+
 ### 4. Implement the change
 
 Keep the edit scoped to what was asked. Preserve the project's existing structure and conventions.
@@ -202,8 +205,14 @@ session data — session slices are not synced between windows.
 **Upgrade the SDK.** Change the version in `package.json`, run `npm install`, then read
 `node_modules/@kvaser/canking-api/CHANGELOG.md` from the old version up to the new one before touching
 code. The SDK version tracks the CanKing application version, so a bump can carry behavior changes that are
-not type errors. Build, then work through the failures.
+not type errors. Build, then work through the failures. When the extension starts using an SDK call that only a
+newer CanKing answers, also raise `canking.minCanKingVersion` in `package.json` to that CanKing version, so the user
+is told when their CanKing is too old.
 
+**Make the view work in log file mode.** Needs SDK 7.7 or later. Add `"supportedModes": ["live", "logFile"]` and
+`"minCanKingVersion"` to the `canking` section of `package.json`, disable any send controls with `useIsLogFileMode`,
+and read the data with the log file calls and hooks rather than the live ones. Cover it with a component test in log
+file mode against the fake host. See `references/log-file-mode.md`.
 **Rename the extension.** The name CanKing displays is `canking.workspaceViewName` in `package.json`. The
 npm package `name` is separate and changing it affects the packed filename. Ask which one is meant if the
 request is ambiguous.
@@ -269,3 +278,4 @@ Never add a sleep or a retry to hide it. A real race is a bug to report and fix,
 - `/develop-canking-gui-extension Package this extension as a .ckext with the README and license included.`
 - `/develop-canking-gui-extension Zooming all the way out doesn't reset the y-axes when auto-scaling is off. Reproduce it with a test, then fix it.`
 - `/develop-canking-gui-extension Set up component tests for this extension with the fake CanKing host.`
+- `/develop-canking-gui-extension Make this gauge work in log file mode, showing the value at the time the Message Trace goes to.`

@@ -46,7 +46,7 @@ A scaffolded project contains:
 | `src/main.tsx` | Routing, including `/dialog/:dialogId` to `DialogApp`. Normally left untouched. |
 | `src/strings.ts` | SDK 7.7 and later: the extension's own strings by language, passed to `CanKingDataProvider` with the `strings` prop. |
 | `src/assets/icon.png` | Sample asset showing how images are imported. |
-| `package.json` | `canking.workspaceViewName` is the name CanKing shows for the extension; `canking.extensionType` is the surface (`WorkspaceView`). |
+| `package.json` | `canking.workspaceViewName` is the name CanKing shows for the extension; `canking.extensionType` is the surface (`WorkspaceView`). From CanKing 7.7, `canking.supportedModes` (`["live", "logFile"]`) makes the view available in log file mode, and `canking.minCanKingVersion` is the lowest CanKing it works with. |
 | `.vscode/launch.json` | The `Debug` configuration used by F5 in VS Code. |
 
 Larger extensions split the view into more files in the same folders. Follow whatever structure the
@@ -128,6 +128,12 @@ name, `getByRole('button', { name: ... })`, and screen readers announce the same
   `ariaLabel` prop to override the name. Controls made of several fields, such as `CanChannelSelectControl` and
   `CanIdentifierControl`, take an `id`: give each instance its own when a view has two, e.g. `input-channel`
   and `output-channel`.
+
+**Respect log file mode.** From SDK 7.7, CanKing can read recorded log files instead of the bus, and nothing can be
+transmitted then. A view that sends frames disables its send controls when `useIsLogFileMode()` is true. A view is
+only shown in log file mode when `package.json` lists `"logFile"` in `canking.supportedModes`; such a view reads the
+log files with the log file hooks and calls instead of the live ones. The develop skill's `log-file-mode.md` has the
+details.
 
 **Do not update a parent's state from `react-resize-detector`'s `onResize` without `disableRerender`.**
 `useResizeDetector` (version 12) calls `onResize` from inside its own state updater, which React runs while
