@@ -62,6 +62,10 @@ Also note the installed SDK version (`@kvaser/canking-api` in `package.json` and
 they and the code always agree — which is exactly why you read the local copies rather than anything
 remembered or fetched.
 
+When a change needs a newer SDK than the installed one, check that the version is published before proposing the
+upgrade (`npm view @kvaser/canking-api versions`). If it is not, tell the user the feature is not available yet and
+stop. Do not work around a missing SDK version.
+
 ### 3. Orient in the project and the SDK
 
 Read `references/implementation-conventions.md` next to this skill. It holds the SDK documentation map, the
