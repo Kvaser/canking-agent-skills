@@ -39,7 +39,8 @@ Check before adding anything:
 - `vitest.config.ts` and its `setupFiles`, often `src/test/setup.ts` or `test/setup/...`
 - `playwright.config.ts` and an `e2e/` folder
 - `@kvaser/canking-api` version: below 7.7 there is no `testing` entry point. Upgrading the SDK is a change
-  of its own; ask before doing it just to get tests.
+  of its own; ask before doing it just to get tests. If `npm view @kvaser/canking-api versions` lists no 7.7
+  or later, the fake host is not released yet: say so and stop rather than writing a fake of your own.
 
 Projects created by a recent `npm create @kvaser/canking-extension` come with Vitest, a setup file that
 installs the fake host, and an example test of the sample view. With `--with-e2e` they also get Playwright.

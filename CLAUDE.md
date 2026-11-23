@@ -17,6 +17,19 @@ skills/
     references/testing.md
 ```
 
+## Branches and releases
+
+`main` is what users get: `npx skills` installs from the default branch, so anything merged there is published
+at once. Keep `main` in step with **released** CanKing and `@kvaser/canking-api`.
+
+- Fixes and additions that apply to released versions go to `main` directly (via a PR).
+- Docs for features in an unreleased CanKing go to `next`. Merge `main` into `next` regularly — the shared
+  references change in almost every edit and conflict quickly.
+- When CanKing releases, merge `next` into `main` and tag the merge `canking-<version>`, e.g. `canking-7.7`.
+
+Version gating is still required on `main`: users stay on older SDKs long after a release, so describe each
+feature with the SDK version it needs ("From SDK 7.7 ...") and what to do before it.
+
 ## Keep the two reference copies in sync
 
 `references/implementation-conventions.md` and `references/testing.md` are **duplicated verbatim** in both
