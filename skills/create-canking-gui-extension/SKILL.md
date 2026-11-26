@@ -42,6 +42,7 @@ npm create @kvaser/canking-extension@latest <project-name> -- --package-name <na
 | description | `--description <text>` | `package.json` `description`. May be an empty string. |
 | author | `--author <name>` | `package.json` `author`. May be an empty string. |
 | browser tests | `--with-e2e` | Optional flag, never asked for. Adds Playwright browser tests to the project. Pass it only when the user asks for browser tests, and only if the installed script lists it in `-- --help`. |
+| log file mode | `--log-file-mode` | Optional flag, never asked for. Recent versions of the script always write `supportedModes` and `minCanKingVersion` (the CanKing version matching the SDK, at least 7.4.0) to the `canking` section of `package.json`, with `"supportedModes": ["live"]`. With this flag it writes `["live", "logFile"]` and a `minCanKingVersion` of at least 7.7.0, so the view is also offered in log file mode. Pass it only when the user asks for the view to work on log files, since listing `logFile` promises that the view works without transmitting, and only if the installed script lists it in `-- --help`. If it does not, add the two fields to `package.json` by hand after scaffolding. |
 
 Recent versions of the script also set the project up for component tests: Vitest, a setup file that installs
 the fake CanKing host, and an example test of the sample view, with `test` and `test:run` scripts. Older
